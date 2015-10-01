@@ -53,40 +53,68 @@ GDOCS_OAUTH_JSON       ='projem-0380abdff614.json'
 GDOCS_SPREADSHEET_NAME='kayit'
 
 def login_open_sheet(oauth_key_file, spreadsheet):
-	"""Connect to Google Docs spreadsheet and return the first worksheet."""
-	try:
-		json_key = json.load(open(oauth_key_file))
-		credentials = SignedJwtAssertionCredentials(json_key['client_email'], json_key['private_key'], ['https://spreadsheets.google.com/feeds'])
-		gc = gspread.authorize(credentials)
-		worksheet = gc.open(spreadsheet).sheet1
-		return worksheet
-	except:
-		print 'Unable to login and get spreadsheet.  Check OAuth credentials, spreadsheet name, and make sure spreadsheet is shared to the client_email address in the OAuth .json file!'
-		#sys.exit(1)
-		
+    """Connect to Google Docs spreadsheet and return the first worksheet."""
+    try:
+        json_key = json.load(open(oauth_key_file))
+        credentials = SignedJwtAssertionCredentials(json_key['client_email'], json_key['private_key'], ['https://spreadsheets.google.com/feeds'])
+        gc = gspread.authorize(credentials)
+        worksheet = gc.open(spreadsheet).sheet1
+        print "baglandi"
+        return worksheet
+    except:
+        print 'Unable to login and get spreadsheet.  Check OAuth credentials, spreadsheet name, and make sure spreadsheet is shared to the client_email address in the OAuth .json file!'
+        #sys.exit(1)
+        
 worksheet = None
-		
+olcum=0  
+ort_sicaklik=0
+ort_nem=0
 while True:
     
     if worksheet is None:
-	
-	try:
-	    worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
-	except:
-	    print "hata"
-	    
+    
+        try:
+                print "baglaniyor..."
+                worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
+        except:
+                print "hata"
+        
     try:
-		zaman=time.strftime("%Y-%m-%d %H:%M:%S")
-		t, h = dhtreader.read(DHT11, 4)
-		values = [zaman,t, h]	
-		worksheet.append_row(values) 
+		
+        #for i in range(5)
+        zaman=	time.strftime("%Y-%m-%d %H:%M:%S")
+        t,h = dhtreader.read(DHT11, 4)
+        #h = dhtreader.read(DHT11, 4)[1]
+        
+        ort_sicaklik=ort_sicaklik+ t
+        ort_nem=ort_nem+h
+        olcum=olcum+1
+        
+       # print t,h,olcum
+        values = [zaman,t, h]   
+        
+        
+        if(olcum==10):
+            ort_sicaklik=ort_sicaklik/5
+            ort_nem=ort_nem/10
+            
+            values2 = [zaman,ort_sicaklik,ort_nem]
+            
+		
+            worksheet.append_row(values2) 
+            print values2, " eklendi..."
+            
+            olcum=0
+            ort_sicaklik=0
+            ort_nem=0
+            
     except:
         print("append olamadi")
         e=sys.exc_info()[0]
         print e
         
-	#t=0
-	#h=0
-    
-    time.sleep(1)    
+    #t=0
+    #h=0
     print("Zaman={0} Isi = {1} *C, Nem = {2} %".format(zaman,t, h))
+    time.sleep(2)    
+   
