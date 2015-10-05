@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-from locale import *
+
 import os
 import glob
 import time
 import gspread
 import datetime
 import sys
-import dhtreader
-import time
+#import dhtreader
 import json
+import serial
 #import Adafruit_DHT
 from oauth2client.client import SignedJwtAssertionCredentials
 #try:
@@ -18,14 +18,17 @@ from oauth2client.client import SignedJwtAssertionCredentials
 #    print('fail')
 #    sys.exit()
 #worksheet = gc.open('kayit').sheet1 #put in the name of the spreadsheet
-DHT11 = 11
-t=55
-h=55
+
+port=serial.Serial("/dev/ttyUSB0",9600,timeout=2)
+port.flushInput()
+#DHT11 = 11
+t=0
+h=0
 ##DHT22 = 22
 ##AM2302 = 22
 ##
 ##
-dhtreader.init()
+#dhtreader.init()
 ##
 ##if len(sys.argv) != 3:
 ##    print("usage: {0} [11|22|2302] GPIOpin#".format(sys.argv[0]))
@@ -70,47 +73,57 @@ worksheet = None
 olcum=0  
 ort_sicaklik=0
 ort_nem=0
+olcum_adedi=50
 
 while True:
     
-    if worksheet is None:
+    #if worksheet is None:
     
-        try:
-                print "baglaniyor..."
-                worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
-        except:
-                print "hata"
+    try:
+        print "baglaniyor..."
+        worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
+    except:
+        print "hata"
         
     try:
+	
+	port.write("55")
+
+	time.sleep(5)
 		
-        #for i in range(5)
-        zaman=	time.strftime("%Y-%m-%d %H:%M:%S")
-        t,h = dhtreader.read(DHT11, 4)
+	a=port.readline()
+		
+	
+	time.sleep(5)        
+
+        zaman=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        h=a[4:9]
+        t=a[14:19]
+        #t,h = dhtreader.read(DHT11, 4)
         #h = dhtreader.read(DHT11, 4)[1]
-        print t,h,'[',olcum,']'
-        ort_sicaklik=ort_sicaklik+ t
-        ort_nem=ort_nem+h
+	print "--",zaman,t,h	
+	        
+        ort_sicaklik=ort_sicaklik+ float(t)
+        ort_nem=ort_nem+float(h)
         olcum=olcum+1
+        print t,h,"olcum=[",olcum,"]"
         
        # print t,h,olcum
         #svalues = [zaman,t, h]   
-        
-        
-        if(olcum==5):
-            ort_sicaklik=ort_sicaklik/5
-            ort_nem=ort_nem/5
-            
-	    c=str(ort_sicaklik).replace('.',',')
-            
-            values2 = [zaman,c,ort_nem]
-            
-		
-	    
-	  #  print c
-		
+                           
+        if(olcum>=olcum_adedi):
+            ort_sicaklik=ort_sicaklik/olcum_adedi
+            ort_nem=ort_nem/olcum_adedi
+            dt=str(float(ort_sicaklik)).replace('.',',')
+            dh=str(float(ort_nem)).replace('.',',')
+				
+            values2 = [zaman,dt,dh] 	    
+	  #  print c	
             worksheet.append_row(values2) 
             print values2, " eklendi..."
             
+
             olcum=0
             ort_sicaklik=0
             ort_nem=0
@@ -124,6 +137,9 @@ while True:
     #h=0
 
    	
-    print("Zaman={0} Isi = {1} *C, Nem = {2} %".format(zaman,t, h))
-    time.sleep(3)    
+    
+#    print("Zaman={0} Isi = {1} *C, Nem = {2} %".format(zaman,t, h))
+    
+
+#    time.sleep(2)    
    
