@@ -73,34 +73,28 @@ worksheet = None
 olcum=0  
 ort_sicaklik=0
 ort_nem=0
-olcum_adedi=2
+olcum_adedi=25
 
-
+while True:
     
     #if worksheet is None:
     
-while(True):
-
     try:
         print "baglaniyor..."
         worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
     except:
         print "hata"
-
-
-#while(True):
-
- #   baglan()        
+        
     try:
 	
 	port.write("55")
 
-#	time.sleep(5)
+	time.sleep(5)
 		
 	a=port.readline()
 		
 	
-#	time.sleep(5)        
+	leep(5)        
 
         zaman=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
@@ -126,10 +120,7 @@ while(True):
 				
             values2 = [zaman,dt,dh] 	    
 	  #  print c	
-	  #  values2="deneme"
-	    time.sleep(1)
-            print values2
-	    worksheet.append_row(values2) 
+            worksheet.append_row(values2) 
             print values2, " eklendi..."
             
 

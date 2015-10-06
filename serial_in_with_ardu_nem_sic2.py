@@ -63,7 +63,7 @@ def login_open_sheet(oauth_key_file, spreadsheet):
         credentials = SignedJwtAssertionCredentials(json_key['client_email'], json_key['private_key'], ['https://spreadsheets.google.com/feeds'])
         gc = gspread.authorize(credentials)
         worksheet = gc.open(spreadsheet).sheet1
-        print "baglandi"
+        print "baglandi!!!"
         return worksheet
     except:
         print 'Unable to login and get spreadsheet.  Check OAuth credentials, spreadsheet name, and make sure spreadsheet is shared to the client_email address in the OAuth .json file!'
@@ -76,31 +76,28 @@ ort_nem=0
 olcum_adedi=2
 
 
-    
-    #if worksheet is None:
-    
-while(True):
-
+def baglan():
     try:
         print "baglaniyor..."
         worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
     except:
         print "hata"
 
-
-#while(True):
-
- #   baglan()        
+while True:
+    
+    if worksheet is None:   
+        baglan()
+        
     try:
 	
 	port.write("55")
 
-#	time.sleep(5)
+	#time.sleep(10)
 		
 	a=port.readline()
 		
 	
-#	time.sleep(5)        
+	#time.sleep(5)        
 
         zaman=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
@@ -117,19 +114,22 @@ while(True):
         
        # print t,h,olcum
         #svalues = [zaman,t, h]   
-                           
+        
+	time.sleep(1)                   
         if(olcum>=olcum_adedi):
+#	    baglan()
             ort_sicaklik=ort_sicaklik/olcum_adedi
             ort_nem=ort_nem/olcum_adedi
             dt=str(float(ort_sicaklik)).replace('.',',')
             dh=str(float(ort_nem)).replace('.',',')
 				
-            values2 = [zaman,dt,dh] 	    
+            values2 = [zaman,t,h] 	    
 	  #  print c	
-	  #  values2="deneme"
-	    time.sleep(1)
-            print values2
-	    worksheet.append_row(values2) 
+      
+            
+
+	    print "...eklenecek",values2
+            worksheet.append_row(values2) 
             print values2, " eklendi..."
             
 
@@ -139,7 +139,7 @@ while(True):
             
     except:
         print "append olamadi"
-        e=sys.exc_info()[0]
+        e=sys.exc_info()
         print e
         
     #t=0
